@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"time"
-
 	// "unsafe"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -31,34 +30,41 @@ func resourceAwsGreengrassv2Component() *schema.Resource {
 				Computed: true,
 			},
 			"inline_recipe": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
+				Type:     schema.TypeString,
+				ForceNew: true,
+				Optional: true,
+
 				ValidateFunc: validateStringIsJsonOrYaml,
 				ExactlyOneOf: []string{"inline_recipe", "lambda_function"},
 			},
 			"lambda_function": {
-				Type:         schema.TypeList,
-				Optional:     true,
-				ForceNew:     true,
+				Type:     schema.TypeList,
+				ForceNew: true,
+				Optional: true,
+
 				ExactlyOneOf: []string{"inline_recipe", "lambda_function"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"component_dependencies": {
 							Type:     schema.TypeList,
+							ForceNew: true,
 							Optional: true,
+
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"component_name": {
 										Type:     schema.TypeString,
+										ForceNew: true,
 										Optional: true,
 									},
 									"dependency_type": {
 										Type:     schema.TypeString,
+										ForceNew: true,
 										Optional: true,
 									},
 									"version_requirement": {
 										Type:     schema.TypeString,
+										ForceNew: true,
 										Optional: true,
 									},
 								},
@@ -66,25 +72,30 @@ func resourceAwsGreengrassv2Component() *schema.Resource {
 						},
 						"component_lambda_parameters": {
 							Type:     schema.TypeList,
+							ForceNew: true,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"environment_variables": {
 										Type:     schema.TypeMap,
+										ForceNew: true,
 										Optional: true,
 										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
 									"event_sources": {
 										Type:     schema.TypeList,
+										ForceNew: true,
 										Optional: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"topic": {
 													Type:     schema.TypeString,
+													ForceNew: true,
 													Required: true,
 												},
 												"type": {
 													Type:     schema.TypeString,
+													ForceNew: true,
 													Required: true,
 												},
 											},
@@ -92,42 +103,50 @@ func resourceAwsGreengrassv2Component() *schema.Resource {
 									},
 									"exec_args": {
 										Type:     schema.TypeList,
+										ForceNew: true,
 										Optional: true,
 										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
 									"input_payload_encoding_type": {
 										Type:         schema.TypeString,
+										ForceNew:     true,
 										Optional:     true,
 										Default:      "json",
 										ValidateFunc: validation.StringInSlice([]string{"binary", "json"}, false),
 									},
 									"linux_process_params": {
 										Type:     schema.TypeList,
+										ForceNew: true,
 										Optional: true,
 										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"container_params": {
 													Type:     schema.TypeList,
+													ForceNew: true,
 													Optional: true,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"devices": {
 																Type:     schema.TypeList,
+																ForceNew: true,
 																Optional: true,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"add_group_owner": {
 																			Type:     schema.TypeBool,
+																			ForceNew: true,
 																			Optional: true,
 																			Default:  false,
 																		},
 																		"path": {
 																			Type:     schema.TypeString,
+																			ForceNew: true,
 																			Required: true,
 																		},
 																		"permission": {
 																			Type:     schema.TypeString,
+																			ForceNew: true,
 																			Optional: true,
 																			Default:  "ro",
 																		},
@@ -136,36 +155,43 @@ func resourceAwsGreengrassv2Component() *schema.Resource {
 															},
 															"memory_size_in_kb": {
 																Type:         schema.TypeInt,
+																ForceNew:     true,
 																Optional:     true,
 																Default:      16384,
 																ValidateFunc: validation.IntBetween(2048, 2147483647),
 															},
 															"mount_ro_sysfs": {
 																Type:     schema.TypeBool,
+																ForceNew: true,
 																Optional: true,
 																Default:  false,
 															},
 															"volumes": {
 																Type:     schema.TypeList,
+																ForceNew: true,
 																Optional: true,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"add_group_owner": {
 																			Type:     schema.TypeBool,
+																			ForceNew: true,
 																			Optional: true,
 																			Default:  false,
 																		},
 																		"destination_path": {
 																			Type:     schema.TypeString,
+																			ForceNew: true,
 																			Required: true,
 																		},
 																		"permission": {
 																			Type:     schema.TypeString,
+																			ForceNew: true,
 																			Optional: true,
 																			Default:  "ro",
 																		},
 																		"source_path": {
 																			Type:     schema.TypeString,
+																			ForceNew: true,
 																			Required: true,
 																		},
 																	},
@@ -176,6 +202,7 @@ func resourceAwsGreengrassv2Component() *schema.Resource {
 												},
 												"isolation_mode": {
 													Type:         schema.TypeString,
+													ForceNew:     true,
 													Optional:     true,
 													Default:      "GreengrassContainer",
 													ValidateFunc: validation.StringInSlice([]string{"NoContainer", "GreengrassContainer"}, false),
@@ -185,29 +212,35 @@ func resourceAwsGreengrassv2Component() *schema.Resource {
 									},
 									"max_idle_time_in_seconds": {
 										Type:         schema.TypeInt,
+										ForceNew:     true,
 										Optional:     true,
 										ValidateFunc: validation.IntBetween(30, 2147483647),
 									},
 									"max_instances_count": {
 										Type:     schema.TypeInt,
+										ForceNew: true,
 										Optional: true,
 									},
 									"max_queue_size": {
 										Type:     schema.TypeInt,
+										ForceNew: true,
 										Optional: true,
 									},
 									"pinned": {
 										Type:     schema.TypeBool,
+										ForceNew: true,
 										Optional: true,
 										Default:  true,
 									},
 									"status_timeout_in_seconds": {
 										Type:         schema.TypeInt,
+										ForceNew:     true,
 										Optional:     true,
 										ValidateFunc: validation.IntBetween(30, 2147483647),
 									},
 									"timeout_in_seconds": {
 										Type:     schema.TypeInt,
+										ForceNew: true,
 										Optional: true,
 									},
 								},
@@ -215,24 +248,29 @@ func resourceAwsGreengrassv2Component() *schema.Resource {
 						},
 						"component_name": {
 							Type:     schema.TypeString,
+							ForceNew: true,
 							Optional: true,
 						},
 						"component_platforms": {
 							Type:     schema.TypeList,
+							ForceNew: true,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"attributes": {
 										Type:     schema.TypeList,
+										ForceNew: true,
 										Optional: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"os": {
 													Type:     schema.TypeString,
+													ForceNew: true,
 													Optional: true,
 												},
 												"architecture": {
 													Type:     schema.TypeString,
+													ForceNew: true,
 													Optional: true,
 												},
 											},
@@ -240,6 +278,7 @@ func resourceAwsGreengrassv2Component() *schema.Resource {
 									},
 									"name": {
 										Type:     schema.TypeString,
+										ForceNew: true,
 										Optional: true,
 									},
 								},
@@ -247,10 +286,12 @@ func resourceAwsGreengrassv2Component() *schema.Resource {
 						},
 						"component_version": {
 							Type:     schema.TypeString,
+							ForceNew: true,
 							Optional: true,
 						},
 						"lambda_arn": {
 							Type:     schema.TypeString,
+							ForceNew: true,
 							Required: true,
 						},
 					},
@@ -380,7 +421,6 @@ func setLambdaFunctionRecipeSource(m map[string]interface{}) *greengrassv2.Lambd
 	if v, ok := m["lambda_arn"].(string); ok {
 		lambdaFunctionRecipeSource.SetLambdaArn(v)
 	}
-	lambdaFunctionRecipeSource.Validate()
 	return lambdaFunctionRecipeSource
 }
 
@@ -398,7 +438,6 @@ func expandLambdaComponentDependencies(lcdMaps []interface{}) map[string]*greeng
 		if v, ok := m["version_requirement"].(string); ok {
 			componentDependencyRequiremnet.SetVersionRequirement(v)
 		}
-		componentDependencyRequiremnet.Validate()
 		if v, ok := m["component_name"].(string); ok {
 			componentDependencyRequiremnets[v] = &componentDependencyRequiremnet
 		}
@@ -449,7 +488,6 @@ func expandLambdaComponentLambdaParameters(lclpMaps []interface{}) *greengrassv2
 	if v, ok := m["timeout_in_seconds"].(int); ok {
 		lambdaExecutionParameter.SetTimeoutInSeconds(int64(v))
 	}
-	lambdaExecutionParameter.Validate()
 	log.Printf("[DEBUG] lambdaExecutionParameter is : %s", lambdaExecutionParameter)
 	return &lambdaExecutionParameter
 }
@@ -473,7 +511,6 @@ func expandLambdaComponentPlatforms(lcpMaps []interface{}) []*greengrassv2.Compo
 		if v, ok := m["name"].(string); ok {
 			componentPlatform.SetName(v)
 		}
-		componentPlatform.Validate()
 		componentPlatforms = append(componentPlatforms, &componentPlatform)
 	}
 	log.Printf("[DEBUG] component platform is : %s", componentPlatforms)
@@ -496,7 +533,6 @@ func expandLambdaEventSources(esMaps []interface{}) []*greengrassv2.LambdaEventS
 		if v, ok := m["type"].(interface{}).(string); ok {
 			eventSource.SetType(v)
 		}
-		eventSource.Validate()
 		eventSources = append(eventSources, &eventSource)
 	}
 	log.Printf("[DEBUG] event source is : %s", eventSources)
@@ -517,7 +553,6 @@ func expandLinuxProcessParams(lppMaps []interface{}) *greengrassv2.LambdaLinuxPr
 	if v, ok := m["isolation_mode"].(string); ok {
 		linuxProcessParams.SetIsolationMode(v)
 	}
-	linuxProcessParams.Validate()
 	log.Printf("[DEBUG] linuxProcessParams is : %s", linuxProcessParams)
 	return linuxProcessParams
 }
@@ -541,7 +576,6 @@ func expandContainerParams(cpMaps []interface{}) *greengrassv2.LambdaContainerPa
 	if v, ok := m["volumes"].([]interface{}); ok {
 		lambdaContainerParams.SetVolumes(expandVolumes(v))
 	}
-	lambdaContainerParams.Validate()
 	log.Printf("[DEBUG] linuxProcessParams is : %s", lambdaContainerParams)
 	return lambdaContainerParams
 }
@@ -566,7 +600,6 @@ func expandDevices(dMaps []interface{}) []*greengrassv2.LambdaDeviceMount {
 		if v, ok := m["permission"].(string); ok {
 			lambdaDeviceMount.SetPermission(v)
 		}
-		lambdaDeviceMount.Validate()
 		lambdaDeviceMounts = append(lambdaDeviceMounts, &lambdaDeviceMount)
 	}
 	log.Printf("[DEBUG] lambdaDeviceMounts is : %s", lambdaDeviceMounts)
@@ -596,7 +629,6 @@ func expandVolumes(vMaps []interface{}) []*greengrassv2.LambdaVolumeMount {
 		if v, ok := m["source_path"].(string); ok {
 			lambdaVolumeMount.SetSourcePath(v)
 		}
-		lambdaVolumeMount.Validate()
 		lambdaVolumeMounts = append(lambdaVolumeMounts, &lambdaVolumeMount)
 	}
 	log.Printf("[DEBUG] lambdaVolumeMounts is : %s", lambdaVolumeMounts)

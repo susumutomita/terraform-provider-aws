@@ -2,11 +2,9 @@ package aws
 
 import (
 	"fmt"
-	"log"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/elasticbeanstalk"
 	"github.com/aws/aws-sdk-go/service/greengrassv2"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -123,6 +121,30 @@ func testAccCheckGreengrassv2ComponentExists(n string, component *greengrassv2.D
 
 		return nil
 	}
+}
+
+func testAccCheckComponentDestroy(s *terraform.State) error {
+	conn := testAccProvider.Meta().(*AWSClient).greengrassv2conn
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "aws_greengrassv2_component" {
+			continue
+		}
+
+		describeComponentOpts := &greengrassv2.DescribeComponentInput{
+			Arn: aws.String(rs.Primary.ID),
+		}
+
+		resp, err := conn.DescribeComponent(describeComponentOpts)
+		if err == nil {
+			if len(aws.StringValue(resp.Arn)) > 0 {
+				return fmt.Errorf("Greengrassv2 component still exists.")
+			}
+			return nil
+		}
+	}
+
+	return nil
 }
 
 func testAccGreengrassv2ComponentConfigJson(rName string) string {
@@ -331,59 +353,4 @@ resource "aws_sns_topic" "test2" {
   name = "lambda-test-topic2"
 }
 `, rName)
-}
-
-func testAccCheckComponentDestroy(s *terraform.State) error {
-	conn := testAccProvider.Meta().(*AWSClient).greengrassv2conn
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "aws_greengrassv2_component" {
-			continue
-		}
-
-		describeComponentOpts := &greengrassv2.DescribeComponentInput{
-			Arn: aws.String(rs.Primary.ID),
-		}
-
-		resp, err := conn.DescribeComponent(describeComponentOpts)
-		if err == nil {
-			if len(aws.StringValue(resp.Arn)) > 0 {
-				return fmt.Errorf("Greengrassv2 component still exists.")
-			}
-			return nil
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckComponentExists(n string, app *elasticbeanstalk.ApplicationVersionDescription) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-		fmt.Errorf("Greengrassv2 component is not set")
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("Greengrassv2 component is not set")
-		}
-
-		conn := testAccProvider.Meta().(*AWSClient).greengrassv2conn
-		describeComponentOpts := greengrassv2.DescribeComponentInput{
-			Arn: aws.String(rs.Primary.ID),
-		}
-
-		log.Printf("[DEBUG] Greengrassv2 component TEST describe opts: %s", describeComponentOpts)
-
-		resp, err := conn.DescribeComponent(&describeComponentOpts)
-		if err != nil {
-			return err
-		}
-		if len(aws.StringValue(resp.Arn)) == 0 {
-			return fmt.Errorf("Greengrassv2 component not found.")
-		}
-
-		return nil
-	}
 }
